@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Abel Bekure</title>
-  <meta name="author" content="Abel Bekure" />
-  <meta name="description" content="Abel Bekure — Computer Science & Logistics and Supply Chain Management professional based in Addis Ababa, Ethiopia." />
-  <link rel="icon" type="image/jpeg" href="a.jpg">
   <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="a.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -29,6 +27,7 @@
 
   <!-- HERO -->
   <section class="hero" id="top">
+    <canvas id="heroParticles"></canvas>
     <div class="hero__content">
       <p class="hero__greeting">Hello, I'm</p>
       <h1 class="hero__name">Abel Bekure</h1>
@@ -105,28 +104,53 @@
           </div>
         </div>
         <div class="about__card-stack">
-          <div class="info-card info-card--a">
-            <div class="info-card__icon">&#127891;</div>
-            <div>
+          <div class="orbit-system">
+            <!-- SVG connecting lines -->
+            <svg class="orbit-lines" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <line class="orbit-line" x1="200" y1="200" x2="200" y2="135" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+<line class="orbit-line" x1="200" y1="200" x2="60" y2="310" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+<line class="orbit-line" x1="200" y1="200" x2="340" y2="310" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+              <!-- Center dot -->
+              <circle cx="200" cy="200" r="6" fill="rgba(255,255,255,0.4)" filter="url(#glow)"/>
+              <circle cx="200" cy="200" r="3" fill="white"/>
+            </svg>
+
+            <!-- Orbital nodes -->
+            <div class="orbit-node orbit-node--edu" data-idx="0">
+              <div class="orbit-icon">&#127891;</div>
               <strong>Education</strong>
-              <p>St. Mary University / Addis Ababa University</p>
-              <p>Computer Science / Logistics & Supply Chain Management</p>
+              <p>St. Mary University / AAU</p>
+              <p>CS & Logistics & SCM</p>
             </div>
-          </div>
-          <div class="info-card info-card--b">
-            <div class="info-card__icon">&#128205;</div>
-            <div>
+            <div class="orbit-node orbit-node--loc" data-idx="1">
+              <div class="orbit-icon">&#128205;</div>
               <strong>Location</strong>
               <p>Addis Ababa, Ethiopia</p>
             </div>
-          </div>
-          <div class="info-card info-card--c">
-            <div class="info-card__icon">&#128161;</div>
-            <div>
+            <div class="orbit-node orbit-node--int" data-idx="2">
+              <div class="orbit-icon">&#128161;</div>
               <strong>Interests</strong>
-              <p>Back-end development, data, operations research, automation, inventory Management, warehouse Management, Logistics</p>
+              <p>Backend · Data · Logistics · Automation</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- GLOBE ROW -->
+      <div class="globe-row">
+        <div class="globe-canvas-wrap">
+          <canvas id="globeCanvas" width="320" height="320"></canvas>
+          <div class="globe-label">&#127757; Addis Ababa, Ethiopia</div>
+        </div>
+        <div class="globe-text">
+          <h3>Rooted in Ethiopia,<br/>thinking globally</h3>
+          <p>From Addis Ababa — the diplomatic capital of Africa and headquarters of the African Union. I bring a perspective shaped by one of the world's most strategically important logistics hubs. Ethiopia sits at the crossroads of East Africa's trade routes, making it the perfect origin for a career in supply chain and technology.</p>
         </div>
       </div>
     </div>
@@ -138,21 +162,51 @@
       <div class="section__label">Projects</div>
       <h2 class="section__title">Experiences</h2>
       <div class="projects__grid">
-        <article class="project-card project-card--featured">
-          <div class="project-card__tag">Data Analysis</div>
-          <h3>Junior data analyst</h3>
-          <p>During my internship at the Ethiopian Public Health Institute (EPHI), I was introduced to the practical applications of data cleaning and analysis. This exposure solidified my career interests and motivated my decision to pursue graduate studies in the future.</p>
-          <div class="project-card__stack"><span>Python</span></div>
-        </article>
         <article class="project-card">
           <div class="project-card__tag">Supply Chain</div>
-          <h3>Junior warehouse officer</h3>
-          <p>I was an internee at harrsu coffee, where i was a delegated junior warehouse officer, i learned all about coffee exporting procedure and legal policies, as well as coffee grades.</p>
+          <div class="card-meta">
+            <span class="card-company">&#127981; Harrsu Coffee Export</span>
+            <span class="card-duration">Internship</span>
+          </div>
+          <h3>Junior Warehouse Officer</h3>
+          <p>Delegated as junior warehouse officer, gaining hands-on experience in coffee export procedures, legal compliance, and grading systems.</p>
+          <div class="card-highlights">
+            <span>&#9989; Coffee Grading</span>
+            <span>&#9989; Export Compliance</span>
+            <span>&#9989; Warehouse Ops</span>
+          </div>
         </article>
+
+        <article class="project-card project-card--featured">
+          <div class="project-card__tag">Data Analysis</div>
+          <div class="card-meta">
+            <span class="card-company">&#127973; EPHI — Ethiopian Public Health Institute</span>
+            <span class="card-duration">Internship</span>
+          </div>
+          <h3>Junior Data Analyst</h3>
+          <p>Applied data cleaning and analysis techniques to real health datasets, solidifying career interests in data-driven decision making.</p>
+          <div class="card-highlights">
+            <span>&#9989; Data Cleaning</span>
+            <span>&#9989; Health Analytics</span>
+            <span>&#9989; Python</span>
+          </div>
+          <div class="project-card__stack"><span>Python</span></div>
+        </article>
+
+        
         <article class="project-card">
           <div class="project-card__tag">SaaS</div>
-          <h3>Smart school system</h3>
-          <p>My capstone project was on a school system which would eliminate the need for manual logs, attendances, and reduce human error. It has an AI which notifies parents, teachers, and generates reports to directors. Waiting to be deployed as a SaaS.</p>
+          <div class="card-meta">
+            <span class="card-company">&#127891; Capstone Project</span>
+            
+          </div>
+          <h3>Smart School System</h3>
+          <p>End-to-end school management system eliminating manual logs and attendance. AI-powered notifications for parents, teachers and directors.</p>
+          <div class="card-highlights">
+            <span>&#9989; AI Notifications</span>
+            <span>&#9989; SaaS Ready</span>
+            <span>&#9989; Testing Done</span>
+          </div>
           <div class="project-card__stack"><span>Web app</span><span>Express.js</span><span>API</span></div>
           <div class="project-card__links">
             <a href="https://github.com/ablsdrfts" class="link-arrow">GitHub &rarr;</a>
@@ -160,10 +214,20 @@
         </article>
         <article class="project-card">
           <div class="project-card__tag">IT</div>
+          <div class="card-meta">
+            <span class="card-company">&#127970; Alliance Star Business Group</span>
+            <span class="card-duration">Current</span>
+          </div>
           <h3>IT Officer</h3>
-          <p>I am currently at Alliance star business group, where i am an IT officer, handling all networking issues at a corporate level under supervision. Hands-on experience with corporate ERP vendored by SYSPRO and hosted on cloud.</p>
+          <p>Managing corporate-level networking and IT infrastructure under supervision, with hands-on ERP experience on SYSPRO hosted on cloud.</p>
+          <div class="card-highlights">
+            <span>&#9989; ERP (SYSPRO)</span>
+            <span>&#9989; Networking</span>
+            <span>&#9989; Cloud Hosting</span>
+          </div>
           <div class="project-card__stack"><span>SYSPRO</span><span>Network</span><span>SQL</span></div>
         </article>
+
       </div>
     </div>
   </section>
