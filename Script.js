@@ -5,20 +5,19 @@ const toggle = document.querySelector('.nav__toggle');
 const navLinks = document.querySelector('.nav__links');
 if (toggle) {
   toggle.addEventListener('click', () => {
-    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+    const open = navLinks.style.display === 'flex';
+    navLinks.style.display = open ? 'none' : 'flex';
     navLinks.style.flexDirection = 'column';
     navLinks.style.position = 'absolute';
-    navLinks.style.top = '70px';
-    navLinks.style.right = '24px';
-    navLinks.style.background = 'rgba(10,15,30,0.95)';
-    navLinks.style.border = '1px solid rgba(255,255,255,0.15)';
-    navLinks.style.borderRadius = '12px';
-    navLinks.style.padding = '1rem 1.4rem';
-    navLinks.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
-    navLinks.style.gap = '1rem';
+    navLinks.style.top = '64px';
+    navLinks.style.left = '0'; navLinks.style.right = '0';
+    navLinks.style.background = '#f5f0e8';
+    navLinks.style.padding = '1.5rem 2rem';
+    navLinks.style.borderBottom = '0.5px solid #e0d8c8';
+    navLinks.style.gap = '1.2rem';
   });
-  navLinks.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => { navLinks.style.display = 'none'; });
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => { navLinks.style.display = 'none'; });
   });
 }
 
@@ -28,12 +27,14 @@ if (toggle) {
 const sections = document.querySelectorAll('section[id]');
 const navAnchors = document.querySelectorAll('.nav__links a');
 window.addEventListener('scroll', () => {
-  document.querySelector('.nav').style.boxShadow = window.scrollY > 10 ? '0 4px 20px rgba(0,0,0,0.3)' : 'none';
+  const nav = document.querySelector('.nav');
+  nav.style.boxShadow = window.scrollY > 10 ? '0 1px 0 #e0d8c8' : 'none';
   let current = '';
   sections.forEach(sec => { if (window.scrollY >= sec.offsetTop - 120) current = sec.getAttribute('id'); });
   navAnchors.forEach(a => {
-    a.style.color = a.getAttribute('href') === `#${current}` ? '#ffffff' : 'rgba(255,255,255,0.70)';
-    a.style.fontWeight = a.getAttribute('href') === `#${current}` ? '700' : '400';
+    const active = a.getAttribute('href') === '#' + current;
+    a.style.color = active ? '#4a5e3a' : '';
+    a.classList.toggle('active', active);
   });
 });
 
@@ -44,242 +45,63 @@ const nameEl = document.querySelector('.hero__name');
 if (nameEl) {
   const fullText = nameEl.textContent.trim();
   nameEl.textContent = '';
-  nameEl.style.borderRight = '3px solid rgba(255,255,255,0.8)';
+  nameEl.style.borderRight = '2px solid #4a5e3a';
   nameEl.style.display = 'inline-block';
   nameEl.style.whiteSpace = 'nowrap';
   nameEl.style.overflow = 'hidden';
   let i = 0;
   const type = () => {
-    if (i < fullText.length) { nameEl.textContent += fullText[i++]; setTimeout(type, 80); }
+    if (i < fullText.length) { nameEl.textContent += fullText[i++]; setTimeout(type, 75); }
     else {
-      let blinks = 0;
+      let b = 0;
       const blink = setInterval(() => {
-        nameEl.style.borderRight = blinks % 2 === 0 ? '3px solid transparent' : '3px solid rgba(255,255,255,0.8)';
-        if (++blinks > 6) { clearInterval(blink); nameEl.style.borderRight = 'none'; }
+        nameEl.style.borderRight = b % 2 === 0 ? '2px solid transparent' : '2px solid #4a5e3a';
+        if (++b > 6) { clearInterval(blink); nameEl.style.borderRight = 'none'; }
       }, 400);
     }
   };
-  setTimeout(type, 600);
+  setTimeout(type, 500);
 }
 
 // =============================================
-// HERO PARTICLE ANIMATION — floating orbs + lines
+// HERO PARTICLES — subtle olive dots
 // =============================================
 (function heroParticles() {
   const canvas = document.getElementById('heroParticles');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-
-  function resize() {
-    canvas.width  = canvas.parentElement.offsetWidth;
-    canvas.height = canvas.parentElement.offsetHeight;
-  }
+  function resize() { canvas.width = canvas.parentElement.offsetWidth; canvas.height = canvas.parentElement.offsetHeight; }
   resize();
   window.addEventListener('resize', resize);
-
-  const count = 60;
-  const particles = Array.from({ length: count }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    vx: (Math.random() - 0.5) * 0.35,
-    vy: (Math.random() - 0.5) * 0.35,
-    r: 1.5 + Math.random() * 2.5,
-    alpha: 0.3 + Math.random() * 0.5,
-    pulse: Math.random() * Math.PI * 2
+  const particles = Array.from({length: 35}, () => ({
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+    vx: (Math.random()-0.5)*0.25, vy: (Math.random()-0.5)*0.25,
+    r: 1 + Math.random()*2, pulse: Math.random()*Math.PI*2
   }));
-
-  let mouseX = canvas.width / 2, mouseY = canvas.height / 2;
-  canvas.parentElement.addEventListener('mousemove', e => {
-    const rect = canvas.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
-  });
-
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     particles.forEach(p => {
-      // Drift
-      p.x += p.vx; p.y += p.vy;
-      p.pulse += 0.02;
+      p.x += p.vx; p.y += p.vy; p.pulse += 0.018;
       if (p.x < 0 || p.x > canvas.width)  p.vx *= -1;
       if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-      // Subtle mouse attraction
-      const dx = mouseX - p.x, dy = mouseY - p.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 180) {
-        p.x += dx * 0.0008;
-        p.y += dy * 0.0008;
-      }
-
-      // Pulsing glow
-      const size = p.r + Math.sin(p.pulse) * 0.8;
-      const alpha = p.alpha * (0.7 + 0.3 * Math.sin(p.pulse));
-
-      // Outer glow
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size * 3);
-      g.addColorStop(0, `rgba(120,180,255,${alpha * 0.6})`);
-      g.addColorStop(1, 'transparent');
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, size * 3, 0, Math.PI * 2);
-      ctx.fillStyle = g;
-      ctx.fill();
-
-      // Core dot
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(160,210,255,${alpha})`;
-      ctx.fill();
+      const a = 0.15 + 0.1 * Math.sin(p.pulse);
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(74,94,58,${a})`; ctx.fill();
     });
-
-    // Connection lines
     particles.forEach((a, i) => {
-      particles.slice(i + 1).forEach(b => {
-        const dx = a.x - b.x, dy = a.y - b.y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        if (d < 130) {
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.strokeStyle = `rgba(120,180,255,${0.18 * (1 - d / 130)})`;
-          ctx.lineWidth = 0.8;
-          ctx.stroke();
+      particles.slice(i+1).forEach(b => {
+        const d = Math.hypot(a.x-b.x, a.y-b.y);
+        if (d < 110) {
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+          ctx.strokeStyle = `rgba(74,94,58,${0.06*(1-d/110)})`; ctx.lineWidth=0.5; ctx.stroke();
         }
       });
     });
-
     requestAnimationFrame(draw);
   }
   draw();
 })();
-// =============================================
-// SHOOTING STARS — Hero fullscreen
-// =============================================
-(function shootingStars() {
-  const canvas = document.getElementById('heroParticles');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
 
-  function createStar() {
-    const angle = (Math.random() * 30 + 10) * Math.PI / 180;
-    const startX = Math.random() * canvas.width * 1.2 - canvas.width * 0.1;
-    const startY = Math.random() * canvas.height * 0.5;
-    const speed = 18 + Math.random() * 22;
-    const length = 180 + Math.random() * 220;
-    const width = 1.5 + Math.random() * 2;
-    const hue = Math.random() < 0.6 ? '200,230,255' : '255,220,160';
-
-    return {
-      x: startX, y: startY,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      length, width,
-      alpha: 0, hue,
-      life: 0,
-      maxLife: 55 + Math.random() * 30,
-      trail: []
-    };
-  }
-
-  let stars = [];
-  let frameCount = 0;
-
-  function drawStars() {
-    frameCount++;
-
-    // Spawn new star randomly
-    if (frameCount % 90 === 0 && stars.length < 4) {
-      stars.push(createStar());
-    }
-
-    stars = stars.filter(s => s.life < s.maxLife);
-
-    stars.forEach(s => {
-      s.life++;
-      s.x += s.vx;
-      s.y += s.vy;
-
-      // Fade in then out
-      if (s.life < 10) s.alpha = s.life / 10;
-      else if (s.life > s.maxLife - 15) s.alpha = (s.maxLife - s.life) / 15;
-      else s.alpha = 1;
-
-      s.trail.push({ x: s.x, y: s.y });
-      if (s.trail.length > 28) s.trail.shift();
-
-      if (s.trail.length < 2) return;
-
-      // Main streak
-      const grad = ctx.createLinearGradient(
-        s.trail[0].x, s.trail[0].y,
-        s.x, s.y
-      );
-      grad.addColorStop(0, `rgba(${s.hue},0)`);
-      grad.addColorStop(0.4, `rgba(${s.hue},${s.alpha * 0.3})`);
-      grad.addColorStop(1, `rgba(255,255,255,${s.alpha})`);
-
-      ctx.beginPath();
-      ctx.moveTo(s.trail[0].x, s.trail[0].y);
-      s.trail.forEach(p => ctx.lineTo(p.x, p.y));
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = s.width;
-      ctx.lineCap = 'round';
-      ctx.stroke();
-
-      // Bright head glow
-      const glow = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 14);
-      glow.addColorStop(0, `rgba(255,255,255,${s.alpha * 0.9})`);
-      glow.addColorStop(0.3, `rgba(${s.hue},${s.alpha * 0.5})`);
-      glow.addColorStop(1, 'transparent');
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, 14, 0, Math.PI * 2);
-      ctx.fillStyle = glow;
-      ctx.fill();
-
-      // Sparkle burst at head
-      for (let i = 0; i < 4; i++) {
-        const sparkAngle = Math.random() * Math.PI * 2;
-        const sparkDist = Math.random() * 8;
-        ctx.beginPath();
-        ctx.arc(
-          s.x + Math.cos(sparkAngle) * sparkDist,
-          s.y + Math.sin(sparkAngle) * sparkDist,
-          0.8 + Math.random() * 1.2, 0, Math.PI * 2
-        );
-        ctx.fillStyle = `rgba(255,255,255,${s.alpha * 0.6 * Math.random()})`;
-        ctx.fill();
-      }
-
-      // Side flare wings
-      const perpX = -Math.sin(Math.atan2(s.vy, s.vx));
-      const perpY = Math.cos(Math.atan2(s.vy, s.vx));
-      [-1, 1].forEach(dir => {
-        const flareGrad = ctx.createLinearGradient(
-          s.x, s.y,
-          s.x + perpX * dir * 20,
-          s.y + perpY * dir * 20
-        );
-        flareGrad.addColorStop(0, `rgba(${s.hue},${s.alpha * 0.4})`);
-        flareGrad.addColorStop(1, 'transparent');
-        ctx.beginPath();
-        ctx.moveTo(s.x, s.y);
-        ctx.lineTo(
-          s.x + perpX * dir * 20,
-          s.y + perpY * dir * 20
-        );
-        ctx.strokeStyle = flareGrad;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      });
-    });
-
-    requestAnimationFrame(drawStars);
-  }
-
-  // Start after a short delay so page loads first
-  setTimeout(drawStars, 1500);
-})();
 // =============================================
 // ORBITAL NODES — cycle highlight
 // =============================================
@@ -287,95 +109,62 @@ if (nameEl) {
   const nodes = document.querySelectorAll('.orbit-node');
   if (!nodes.length) return;
   let current = 0;
-
-  function activate(idx) {
-    nodes.forEach((n, i) => n.classList.toggle('active', i === idx));
-    current = idx;
-  }
-
+  function activate(idx) { nodes.forEach((n,i) => n.classList.toggle('active', i===idx)); current = idx; }
   activate(0);
-  setInterval(() => activate((current + 1) % nodes.length), 2200);
-
-  // Click to highlight
-  nodes.forEach((n, i) => n.addEventListener('click', () => activate(i)));
+  setInterval(() => activate((current+1) % nodes.length), 2200);
+  nodes.forEach((n,i) => n.addEventListener('click', () => activate(i)));
 })();
 
 // =============================================
 // SCROLL REVEAL
 // =============================================
-const revealObserver = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.style.opacity = '1';
-      entry.target.style.transform = 'translateY(0)';
-      revealObserver.unobserve(entry.target);
-    }
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; revealObs.unobserve(e.target); }
   });
 }, { threshold: 0.12 });
 
-document.querySelectorAll('.skill-group, .contact-link').forEach((el, i) => {
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(28px)';
-  el.style.transition = `opacity 0.6s ease ${i * 0.07}s, transform 0.6s ease ${i * 0.07}s`;
-  revealObserver.observe(el);
+document.querySelectorAll('.skill-group, .contact-link, .info-card').forEach((el,i) => {
+  el.style.opacity='0'; el.style.transform='translateY(20px)';
+  el.style.transition=`opacity 0.6s ease ${i*0.06}s, transform 0.6s ease ${i*0.06}s`;
+  revealObs.observe(el);
 });
 
 // =============================================
 // SKILL PILLS — staggered pop-in
 // =============================================
-const pillObserver = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (!entry.isIntersecting) return;
-    entry.target.querySelectorAll('.skill-pills span').forEach((pill, i) => {
-      setTimeout(() => { pill.style.opacity = '1'; pill.style.transform = 'scale(1)'; }, i * 80);
+const pillObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.querySelectorAll('.skill-pills span').forEach((p,i) => {
+      setTimeout(() => { p.style.opacity='1'; p.style.transform='scale(1)'; }, i*70);
     });
-    pillObserver.unobserve(entry.target);
+    pillObs.unobserve(e.target);
   });
 }, { threshold: 0.3 });
 
-document.querySelectorAll('.skill-group').forEach(group => {
-  group.querySelectorAll('.skill-pills span').forEach(pill => {
-    pill.style.opacity = '0'; pill.style.transform = 'scale(0.7)';
-    pill.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+document.querySelectorAll('.skill-group').forEach(g => {
+  g.querySelectorAll('.skill-pills span').forEach(p => {
+    p.style.opacity='0'; p.style.transform='scale(0.8)';
+    p.style.transition='opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
   });
-  pillObserver.observe(group);
+  pillObs.observe(g);
 });
 
 // =============================================
 // SECTION TITLE REVEAL
 // =============================================
-const titleObserver = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) { entry.target.style.opacity = '1'; entry.target.style.transform = 'translateY(0)'; titleObserver.unobserve(entry.target); }
+const titleObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; titleObs.unobserve(e.target); }
   });
 }, { threshold: 0.2 });
 
 document.querySelectorAll('.section__title, .section__label').forEach(el => {
-  el.style.opacity = '0'; el.style.transform = 'translateY(20px)';
-  el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
-  titleObserver.observe(el);
+  el.style.opacity='0'; el.style.transform='translateY(16px)';
+  el.style.transition='opacity 0.6s ease, transform 0.6s ease';
+  titleObs.observe(el);
 });
-
-// =============================================
-// STAT COUNTERS
-// =============================================
-document.querySelectorAll('.fact__num').forEach(el => {
-  const val = parseInt(el.textContent);
-  if (!isNaN(val)) { el.setAttribute('data-target', val); el.textContent = '0'; }
-});
-const counterObserver = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (!entry.isIntersecting) return;
-    const el = entry.target;
-    const target = parseInt(el.getAttribute('data-target'));
-    if (isNaN(target)) return;
-    let current = 0;
-    const step = Math.ceil(target / 40);
-    const tick = setInterval(() => { current = Math.min(current + step, target); el.textContent = current; if (current >= target) clearInterval(tick); }, 40);
-    counterObserver.unobserve(el);
-  });
-}, { threshold: 0.5 });
-document.querySelectorAll('.fact__num[data-target]').forEach(el => counterObserver.observe(el));
 
 // =============================================
 // LOGISTICS STATUS TRACKER
@@ -383,25 +172,26 @@ document.querySelectorAll('.fact__num[data-target]').forEach(el => counterObserv
 const heroContent = document.querySelector('.hero__content');
 if (heroContent) {
   const tracker = document.createElement('div');
-  tracker.style.cssText = `margin-top:1.5rem;display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:100px;padding:8px 18px;font-size:0.82rem;font-weight:600;color:#ffffff;backdrop-filter:blur(8px);opacity:0;animation:fadeUp 1s 1.2s ease forwards;`;
-  const statuses = ['📦 Skills: Loaded','🚚 Projects: In Transit','✅ Experiences: Delivered','📍 Location: Addis Ababa','🔗 Status: Available'];
+  tracker.style.cssText = 'margin-top:1.2rem;display:inline-flex;align-items:center;gap:8px;background:rgba(74,94,58,0.06);border:0.5px solid rgba(74,94,58,0.2);padding:6px 16px;font-size:0.75rem;font-weight:500;color:#4a5e3a;letter-spacing:0.06em;opacity:0;animation:fadeUp 1s 1s ease forwards;';
+  const statuses = ['📦 Skills: Loaded','🚚 Projects: In Transit','✅ Experiences: Delivered','📍 Addis Ababa, Ethiopia','🔗 Open to Opportunities'];
   let idx = 0;
   tracker.textContent = statuses[0];
   setInterval(() => {
-    tracker.style.opacity = '0'; tracker.style.transition = 'opacity 0.3s ease';
-    setTimeout(() => { idx = (idx + 1) % statuses.length; tracker.textContent = statuses[idx]; tracker.style.opacity = '1'; }, 300);
+    tracker.style.opacity='0'; tracker.style.transition='opacity 0.3s';
+    setTimeout(() => { idx=(idx+1)%statuses.length; tracker.textContent=statuses[idx]; tracker.style.opacity='1'; }, 300);
   }, 2500);
-  heroContent.appendChild(tracker);
+  heroContent.insertBefore(tracker, heroContent.querySelector('.hero__cta'));
 }
 
 // =============================================
-// CURSOR GLOW
+// CURSOR GLOW — subtle olive
 // =============================================
 const cursor = document.createElement('div');
-cursor.style.cssText = `position:fixed;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(176,125,86,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;transform:translate(-50%,-50%);transition:left 0.15s ease,top 0.15s ease;`;
+cursor.style.cssText = 'position:fixed;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(74,94,58,0.05) 0%,transparent 70%);pointer-events:none;z-index:0;transform:translate(-50%,-50%);transition:left 0.2s ease,top 0.2s ease;';
 document.body.appendChild(cursor);
-document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+document.addEventListener('mousemove', e => { cursor.style.left=e.clientX+'px'; cursor.style.top=e.clientY+'px'; });
 
+// =============================================
 // =============================================
 // PROJECT CARD CANVAS ANIMATIONS
 // =============================================
@@ -565,6 +355,79 @@ document.querySelectorAll('.project-card').forEach((card, i) => {
 });
 
 
+
+// =============================================
+// MINI ETHIOPIA GLOBE — Nav top right
+// =============================================
+(function miniGlobe() {
+  const canvas = document.getElementById('miniGlobe');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx=22, cy=22, R=18;
+  let rot = -38.7;
+
+  function toRad(d){ return d*Math.PI/180; }
+  function project(lon,lat,r){
+    const lam=toRad(lon+r), phi=toRad(lat);
+    const x=R*Math.cos(phi)*Math.sin(lam);
+    const y=-R*Math.sin(phi);
+    const z=R*Math.cos(phi)*Math.cos(lam);
+    return {x:cx+x,y:cy+y,z};
+  }
+
+  const ethiopiaRegions_mini = [
+    [[38,14.9],[40,14.5],[42,14],[43,13],[43,12],[44,11.5],[45,11],[46,10.5],[46,9],[44,8.5],[43,8],[42,7.5],[41,6.5],[40,5.5],[39,4.5],[38,4],[36,4],[35,5],[34,6],[34,7],[35,8],[35,9],[34,10],[34,11],[35,12],[36,13],[36,14],[37,14.5],[38,14.9]]
+  ];
+
+  function draw(){
+    ctx.clearRect(0,0,44,44);
+    // Globe
+    const g=ctx.createRadialGradient(cx-5,cy-5,3,cx,cy,R);
+    g.addColorStop(0,'rgba(234,237,229,0.9)');
+    g.addColorStop(1,'rgba(200,210,190,0.6)');
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+    ctx.fillStyle=g; ctx.fill();
+    ctx.strokeStyle='rgba(74,94,58,0.2)'; ctx.lineWidth=0.5; ctx.stroke();
+
+    // Grid lines
+    for(let lat=-60;lat<=60;lat+=30){
+      ctx.beginPath(); let f=true;
+      for(let lon=-180;lon<=180;lon+=10){
+        const p=project(lon,lat,rot);
+        if(p.z<=0){f=true;continue;}
+        f?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); f=false;
+      }
+      ctx.strokeStyle='rgba(74,94,58,0.12)'; ctx.lineWidth=0.4; ctx.stroke();
+    }
+
+    // Ethiopia
+    ethiopiaRegions_mini.forEach(region => {
+      const ethC=project(38.7,9,rot);
+      if(ethC.z<=0) return;
+      ctx.beginPath(); let f=true;
+      region.forEach(([lon,lat])=>{
+        const p=project(lon,lat,rot);
+        if(p.z<=0){f=true;return;}
+        f?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); f=false;
+      });
+      ctx.closePath();
+      ctx.fillStyle='rgba(74,94,58,0.55)'; ctx.fill();
+      ctx.strokeStyle='rgba(74,94,58,0.8)'; ctx.lineWidth=0.8; ctx.stroke();
+
+      // Dot
+      const pulse=0.5+0.5*Math.sin(Date.now()*0.004);
+      ctx.beginPath(); ctx.arc(ethC.x,ethC.y,2+pulse,0,Math.PI*2);
+      ctx.fillStyle=`rgba(74,94,58,${0.4+pulse*0.3})`; ctx.fill();
+      ctx.beginPath(); ctx.arc(ethC.x,ethC.y,1.2,0,Math.PI*2);
+      ctx.fillStyle='#4a5e3a'; ctx.fill();
+    });
+
+    rot += 0.4;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
 // =============================================
 // ACCURATE REVOLVING GLOBE — Ethiopia SVG data
 // =============================================
@@ -573,7 +436,7 @@ document.querySelectorAll('.project-card').forEach((card, i) => {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
-  const cx = W/2, cy = H/2, R = 400;
+  const cx = W/2, cy = H/2, R = 148;
 
   // Africa removed
 
@@ -592,8 +455,8 @@ document.querySelectorAll('.project-card').forEach((card, i) => {
   [[37.077,13.400],[36.920,13.425],[36.730,13.596],[36.562,13.640],[36.464,13.827],[36.415,13.640],[36.160,13.040],[36.173,12.994],[36.149,12.954],[36.162,12.871],[36.147,12.712],[36.096,12.692],[36.074,12.705],[35.752,12.662],[35.711,12.646],[35.701,12.610],[35.686,12.577],[35.649,12.568],[35.441,12.203],[35.426,12.146],[35.384,12.117],[35.349,12.001],[35.283,11.931],[35.271,11.907],[35.364,11.759],[35.434,11.724],[35.547,11.745],[35.613,11.792],[35.782,11.986],[35.861,11.987],[35.883,11.966],[35.953,11.957],[35.991,11.926],[36.059,11.847],[36.123,11.751],[36.155,11.626],[36.214,11.631],[36.334,11.741],[36.360,11.668],[36.410,11.520],[36.458,11.402],[36.453,11.338],[36.528,11.222],[36.485,11.142],[36.494,11.080],[36.512,10.982],[36.408,10.865],[36.363,10.804],[36.335,10.715],[36.335,10.635],[36.361,10.671],[36.416,10.660],[36.374,10.404],[36.440,10.328],[36.524,10.352],[36.546,10.315],[36.558,10.258],[36.738,10.240],[36.780,10.247],[36.798,10.229],[36.865,10.218],[37.070,10.170],[37.137,10.127],[37.223,10.091],[37.210,9.994],[37.250,9.961],[37.281,9.964],[37.321,9.941],[37.327,9.894],[37.347,9.871],[37.372,9.900],[37.426,9.914],[37.569,9.849],[37.618,9.779],[37.743,9.690],[37.795,9.707],[37.820,9.706],[37.909,9.770],[37.931,9.782],[38.005,9.821],[38.216,9.911],[38.251,9.945],[38.270,9.975],[38.336,9.994],[38.395,9.986],[38.457,10.022],[38.452,10.066],[38.465,10.091],[38.507,10.223],[38.756,10.253],[38.888,10.180],[38.766,9.918],[38.690,9.886],[38.781,9.837],[38.821,9.791],[38.832,9.680],[38.946,9.558],[39.293,9.395],[39.398,9.277],[39.471,9.260],[39.533,9.163],[39.470,9.170],[39.322,9.121],[39.276,9.112],[39.302,9.010],[39.396,8.965],[39.301,8.756],[39.303,8.659],[39.349,8.582],[39.440,8.632],[39.521,8.570],[39.615,8.596],[39.783,8.675],[39.835,8.954],[39.919,9.089],[39.871,9.174],[39.819,9.202],[39.858,9.251],[39.920,9.388],[39.877,9.583],[40.040,9.569],[40.043,9.623],[40.065,9.685],[40.110,9.769],[40.082,9.846],[40.017,9.900],[40.042,9.962],[40.111,9.963],[40.156,9.962],[40.149,10.038],[40.168,10.143],[40.187,10.315],[40.203,10.365],[40.179,10.473],[40.183,10.560],[40.140,10.651],[40.188,10.754],[40.153,10.838],[40.221,10.960],[40.213,11.066],[40.157,11.197],[40.092,11.270],[40.086,11.389],[40.025,11.510],[40.009,11.594],[39.961,11.626],[39.902,11.736],[39.906,11.871],[39.870,11.904],[39.856,11.947],[39.851,12.010],[39.825,12.065],[39.819,12.122],[39.786,12.222],[39.804,12.294],[39.665,12.274],[39.562,12.219],[39.567,12.280],[39.402,12.294],[39.323,12.263],[39.283,12.306],[39.257,12.474],[39.215,12.653],[39.281,12.897],[39.258,13.002],[39.121,13.010],[39.039,13.022],[39.025,13.087],[38.994,13.173],[38.729,13.422],[38.702,13.518],[38.608,13.532],[38.485,13.496],[38.506,13.597],[38.477,13.630],[38.440,13.589],[38.305,13.548],[38.161,13.561],[38.116,13.517],[38.049,13.508],[37.766,13.604],[37.709,13.492],[37.540,13.394],[37.323,13.397],[37.272,13.444],[37.185,13.460],[37.102,13.422]],
 ];
 
-  const addisLon = 38.7, addisLat = 20;
-  let rotLon = -55;
+  const addisLon = 38.7, addisLat = 9.0;
+  let rotLon = 130;
   let spinning = true;
   const targetLon = -38.7;
 
@@ -625,12 +488,12 @@ document.querySelectorAll('.project-card').forEach((card, i) => {
 
     // Ocean gradient
     const grad = ctx.createRadialGradient(cx-30, cy-30, 20, cx, cy, R);
-    grad.addColorStop(0, 'rgba(60,130,230,0.70)');
-    grad.addColorStop(0.6,'rgba(20,70,170,0.55)');
-    grad.addColorStop(1, 'rgba(5,20,80,0.60)');
+    grad.addColorStop(0, 'rgba(10,60,25,0.80)');
+    grad.addColorStop(0.6,'rgba(6,35,15,0.65)');
+    grad.addColorStop(1, 'rgba(3,18,8,0.70)');
     ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
     ctx.fillStyle = grad; ctx.fill();
-    ctx.strokeStyle = 'rgba(100,170,255,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.strokeStyle = 'rgba(40,160,80,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
 
     // Grid
     for (let lat=-75; lat<=75; lat+=15) {
@@ -640,7 +503,7 @@ document.querySelectorAll('.project-card').forEach((card, i) => {
         if(p.z<=0){f=true;continue;}
         f?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); f=false;
       }
-      ctx.strokeStyle='rgba(180,220,255,0.13)'; ctx.lineWidth=0.5; ctx.stroke();
+      ctx.strokeStyle='rgba(80,200,100,0.13)'; ctx.lineWidth=0.5; ctx.stroke();
     }
     for (let lon=-180; lon<=180; lon+=15) {
       ctx.beginPath(); let f=true;
@@ -649,107 +512,53 @@ document.querySelectorAll('.project-card').forEach((card, i) => {
         if(p.z<=0){f=true;continue;}
         f?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); f=false;
       }
-      ctx.strokeStyle='rgba(180,220,255,0.13)'; ctx.lineWidth=0.5; ctx.stroke();
+      ctx.strokeStyle='rgba(80,200,100,0.13)'; ctx.lineWidth=0.5; ctx.stroke();
     }
 
-   // Africa outline (gap around Ethiopia area)
-   // Tropic lines — subtle named latitude markers
-const tropics = [
-  { lat: 23.5, label: 'Tropic of Cancer', color: 'rgba(255,200,100,0.25)' },
-  { lat: -23.5, label: 'Tropic of Capricorn', color: 'rgba(100,200,255,0.25)' },
-  { lat: 0, label: 'Equator', color: 'rgba(255,255,255,0.20)' },
-];
-tropics.forEach(({ lat, color }) => {
-  ctx.beginPath(); let f = true;
-  for (let lon = -180; lon <= 180; lon += 3) {
-    const p = project(lon, lat, rotLon);
-    if (p.z <= 0) { f = true; continue; }
-    f ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-    f = false;
-  }
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.2;
-  ctx.setLineDash([4, 6]);
-  ctx.stroke();
-  ctx.setLineDash([]);
-});
+    // Africa removed — Ethiopia only
 
-// Ocean shimmer dots — scattered across visible hemisphere
-for (let lat = -80; lat <= 80; lat += 18) {
-  for (let lon = -180; lon <= 180; lon += 22) {
-    // Skip Ethiopia region
-    if (lon > 33 && lon < 48 && lat > 3 && lat < 15) continue;
-    const p = project(lon, lat, rotLon);
-    if (p.z <= 0) continue;
-    const shimmer = 0.3 + 0.4 * Math.sin(Date.now() * 0.001 + lon * 0.3 + lat * 0.2);
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(180,230,255,${shimmer * 0.5})`;
-    ctx.fill();
-  }
-}
-
-// Other continents — all except Africa area
-const continents = [
-  [[-168,72],[-140,70],[-120,74],[-85,74],[-65,68],[-52,55],[-56,47],[-70,43],[-76,35],[-80,25],[-88,16],[-78,8],[-104,20],[-110,24],[-118,32],[-120,38],[-124,48],[-130,54],[-140,58],[-152,60],[-160,60],[-168,64],[-168,72]],
-  [[-80,12],[-72,12],[-60,8],[-50,4],[-50,-5],[-36,-5],[-36,-18],[-42,-24],[-44,-30],[-52,-34],[-58,-38],[-62,-52],[-68,-56],[-74,-50],[-72,-42],[-76,-30],[-72,-18],[-76,-8],[-80,0],[-80,12]],
-  [[0,52],[8,58],[10,62],[14,66],[20,70],[28,72],[30,68],[26,60],[30,58],[24,58],[18,58],[14,56],[10,56],[4,52],[0,52]],
-  [[26,72],[40,72],[60,74],[80,74],[100,72],[120,70],[140,72],[160,68],[170,64],[170,56],[160,50],[150,44],[140,38],[130,32],[120,26],[110,20],[100,12],[92,8],[80,10],[72,20],[60,24],[52,30],[44,36],[36,42],[30,46],[26,50],[26,72]],
-  [[114,-22],[120,-20],[130,-12],[136,-12],[140,-16],[148,-18],[152,-24],[152,-30],[148,-38],[144,-38],[136,-36],[130,-32],[122,-34],[114,-30],[114,-22]],
-];
-continents.forEach(pts => {
-  ctx.beginPath(); let f = true;
-  pts.forEach(([lon, lat]) => {
-    const p = project(lon, lat, rotLon);
-    if (p.z <= 0) { f = true; return; }
-    f ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-    f = false;
-  });
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(80,180,100,0.18)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(120,220,140,0.38)';
-  ctx.lineWidth = 0.8;
-  ctx.stroke();
-});
     // Ethiopia — all 11 accurate regions from SVG
     const ethCenter = project(addisLon, addisLat, rotLon);
     if (ethCenter.z > 0) {
       ethiopiaRegions.forEach(region => {
-  ctx.beginPath();
-  let first = true;
-  region.forEach(([lon, lat]) => {
-    const p = project(lon, lat, rotLon);
-    if (p.z <= 0) { first = true; return; }
-    // Scale Ethiopia from its center (addisLon, addisLat)
-    const center = project(addisLon, addisLat, rotLon);
-    const scale = 1.75;
-    const sx = center.x + (p.x - center.x) * scale;
-    const sy = center.y + (p.y - center.y) * scale;
-    first ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
-    first = false;
-  });
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(255,150,50,0.55)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,210,90,0.90)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-});
+        drawRegion(region, rotLon);
+        ctx.fillStyle = 'rgba(255,150,50,0.55)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,210,90,0.90)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      });
 
-
+      // Addis Ababa pulsing dot
+      const pulse = 0.5 + 0.5*Math.sin(Date.now()*0.004);
+      ctx.beginPath(); ctx.arc(ethCenter.x,ethCenter.y,6+pulse*5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,200,80,${0.2+pulse*0.25})`; ctx.fill();
+      ctx.beginPath(); ctx.arc(ethCenter.x,ethCenter.y,4.5,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,230,100,1)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(ethCenter.x,ethCenter.y,2,0,Math.PI*2);
+      ctx.fillStyle='#ffffff'; ctx.fill();
     }
 
     // Atmosphere rim
     const rim=ctx.createRadialGradient(cx,cy,R-6,cx,cy,R+16);
-    rim.addColorStop(0,'rgba(100,180,255,0.12)');
+    rim.addColorStop(0,'rgba(40,180,80,0.15)');
     rim.addColorStop(1,'transparent');
     ctx.beginPath(); ctx.arc(cx,cy,R+16,0,Math.PI*2);
     ctx.fillStyle=rim; ctx.fill();
 
     // Spin with easing toward Ethiopia
-    rotLon += 0.9; // Rotation speed
-if (rotLon >= 360) rotLon -= 360;
+    if (spinning) {
+      let diff = targetLon - rotLon;
+      while(diff > 180) diff -= 360;
+      while(diff < -180) diff += 360;
+      if (Math.abs(diff) < 0.2) {
+        rotLon = targetLon;
+        spinning = false;
+      } else {
+        rotLon += diff * 0.015;
+      }
+    }
+
     requestAnimationFrame(drawGlobe);
   }
 
